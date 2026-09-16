@@ -12,13 +12,14 @@ while True:
     if user_input.lower() == 'quit':
         break
           
-    # 4. Handle invalid input: Check if it's a positive digit
-    if not user_input.isdigit():
+    # 4. Handle invalid input: Reject letters and punctuation
+    # (But let negative numbers through by checking for the minus sign)
+    if not user_input.isdigit() and not (user_input.startswith("-") and user_input[1:].isdigit()):
         print("Error: Invalid entry. Please enter a valid integer.")
         failed_entries += 1
         continue  # Move to the next iteration
         
-    # Convert string to integer
+    # Convert string to integer (safely works for negative digits now!)
     stock_value = int(user_input)
     
     # 5. Enforce business rules: Reject negative numbers
