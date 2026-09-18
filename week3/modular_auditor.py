@@ -55,12 +55,6 @@ while True:
     print(f"Added {stock_value} units. Current inventory: {total_inventory}")
 
     
-    
-    # 7. Overstock Alert
-    if total_inventory > 500:
-        print("ALERT: Overstock detected! Inventory exceeds 500 units.")
-        break
-
 # 8. Reporting when the loop exits
 print("\n--- Audit Report ---")
 print(f"Total Units Processed: {total_inventory}")
