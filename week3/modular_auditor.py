@@ -21,6 +21,15 @@ def get_valid_input():
             else:
                 return stock_value
 
+def process_delivery(current_total, new_value):
+    new_total = current_total + new_value
+    return new_total
+
+def calculate_tax(amount):
+    tax_amount = amount * 0.10
+    return tax_amount
+
+
 # 1. Initialize variables
 total_inventory = 0
 failed_entries = 0
@@ -34,13 +43,18 @@ while True:
     elif result == 'invalid':
         failed_entries += 1
         continue
-    
+
     stock_value = result
 
+    # Calculate the tax for this specific delivery
+    delivery_tax = calculate_tax(stock_value)
+    print(f"Tax for this delivery: ${delivery_tax:.2f}")
 
     # 6. Manage State: Add to running total
-    total_inventory += stock_value
+    total_inventory = process_delivery(total_inventory,stock_value)
     print(f"Added {stock_value} units. Current inventory: {total_inventory}")
+
+    
     
     # 7. Overstock Alert
     if total_inventory > 500:
