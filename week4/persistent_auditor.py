@@ -2,10 +2,6 @@
 import os
 
 def load_inventory(filename="week4\\inventory.txt"):
-    """
-    Requirement: Reads existing orders from the file.
-    Returns a list of orders. Each order is a dictionary: {'id': int, 'name': str, 'quantity': int}
-    """
     orders = []
     
     if not os.path.exists(filename):
@@ -54,7 +50,7 @@ def get_valid_input(orders_list):
 
 
 current_orders = load_inventory()
-print("Current Orders:\n")
+print("\nCurrent Orders:\n")
 for order in current_orders:
     print(f"{order['id']}, {order['name']}, {order['quantity']}")
 
