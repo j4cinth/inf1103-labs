@@ -2,26 +2,29 @@
 import os
 
 def load_inventory(filename="week4\\inventory.txt"):
-
-    if not os.path.exists(filename):
-        return 0, []
+    """
+    Requirement: Reads existing orders from the file.
+    Returns a list of orders. Each order is a dictionary: {'id': int, 'name': str, 'quantity': int}
+    """
+    orders = []
     
-    try:
-        with open(filename, "r") as f:
-            lines = f.read().splitlines()
-            if not lines:
-                return 0, []
-            
-            total = int(lines[0].strip())
-            
-            history = []
-            if len(lines) > 1 and lines[1].strip():
-                history = [int(x) for x in lines[1].strip().split(",") if x.strip()]
-                
-            return total, history
-    except (ValueError, IndexError):
-        return 0, []
-
+    if not os.path.exists(filename):
+        return orders  # Return an empty list if file doesn't exist yet
+        
+    with open(filename, "r") as f:
+        for line in f:
+            line = line.strip()
+            if line:
+                parts = [part.strip() for part in line.split(",")]
+                if len(parts) == 3:
+                    order_dict = {
+                        "id": int(parts[0]),
+                        "name": parts[1],
+                        "quantity": int(parts[2])
+                    }
+                    orders.append(order_dict)
+                    
+    return orders
 def save_inventory(total, history, filename="week4\\inventory.txt"):
 
     with open(filename, "w") as f:
