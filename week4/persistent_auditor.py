@@ -25,32 +25,30 @@ def load_inventory(filename="week4\\inventory.txt"):
                     orders.append(order_dict)
                     
     return orders
+
 def save_inventory(total, history, filename="week4\\inventory.txt"):
 
     with open(filename, "w") as f:
-        f.write(f"{total}\n")
-        f.write(",".join(map(str, history)) + "\n")
+        for order in orders_list:
+            f.write(f"{order['id']}, {order['name']}, {order['quantity']}\n")
+    print(f"\nOrder successfully saved to {filename.split('\\')[-1]}")
 
-def get_valid_input():
+def get_valid_input(orders_list):
+
+    product_name = input("Enter Product Name: ").strip()
 
     while True:
-        user_input = input("Enter stock quantity (or type 'quit' to exit): ").strip()
-        # Check if user wants to quit
-        if user_input.lower() == 'quit':
-            return 'quit'
+        qty_input = input("Enter Quantity: ").strip()
+        if qty_input.isdigit() and int(qty_input) > 0:
+            quantity = int(qty_input)
+            break
+            
+        print("Error: Please enter a valid positive integer for quantity.")
+
+    if orders_list:
+        next_id = orders_list[-1]["id"] + 1
         
-         # 4. Handle invalid input: Reject letters and punctuation
-        elif not user_input.isdigit() and not (user_input.startswith("-") and user_input[1:].isdigit()):
-            print("Error: Invalid entry. Please enter a valid integer.")
-            return 'invalid'
-        else:
-            stock_value = int(user_input)
-            # 5. Enforce business rules: Reject negative numbers
-            if stock_value < 0:
-                    print("Error: Negative values are not allowed.")
-                    return 'invalid'
-            else:
-                return stock_value
+    return {"id": next_id, "name": product_name, "quantity": quantity}       
 
 def process_delivery(current_total, new_value):
     new_total = current_total + new_value
@@ -70,8 +68,10 @@ def generate_report(total_units, failed_attempts):
 total_inventory, transaction_history = load_inventory()
 failed_entries = 0
 
-print(f"Starting Inventory Total: {total_inventory}")
-print(f"Starting History: {transaction_history}\n")
+current_orders = load_inventory()
+print("Current Orders:\n")
+for order in current_orders:
+    print(f"{order['id']}, {order['name']}, {order['quantity']}")
 
 # 2. Continuous loop until user types 'quit'
 while True:
