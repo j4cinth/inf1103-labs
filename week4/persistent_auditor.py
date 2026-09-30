@@ -22,6 +22,12 @@ def load_inventory(filename="week4\\inventory.txt"):
     except (ValueError, IndexError):
         return 0, []
 
+def save_inventory(total, history, filename="week4\\inventory.txt"):
+
+    with open(filename, "w") as f:
+        f.write(f"{total}\n")
+        f.write(",".join(map(str, history)) + "\n")
+
 def get_valid_input():
 
     while True:
@@ -69,12 +75,15 @@ while True:
     result = get_valid_input()
 
     if  result == 'quit':
+        save_inventory(total_inventory, transaction_history)
         break
     elif result == 'invalid':
         failed_entries += 1
         continue
 
     stock_value = result
+
+    transaction_history.append(stock_value)
 
     # Calculate the tax for this specific delivery
     delivery_tax = calculate_tax(stock_value)
