@@ -26,7 +26,7 @@ def load_inventory(filename="week4\\inventory.txt"):
                     
     return orders
 
-def save_inventory(total, history, filename="week4\\inventory.txt"):
+def save_inventory(orders_list, filename="week4\\inventory.txt"):
 
     with open(filename, "w") as f:
         for order in orders_list:
@@ -47,12 +47,11 @@ def get_valid_input(orders_list):
 
     if orders_list:
         next_id = orders_list[-1]["id"] + 1
+    else:
+        next_id = 1001
         
     return {"id": next_id, "name": product_name, "quantity": quantity}       
 
-
-total_inventory, transaction_history = load_inventory()
-failed_entries = 0
 
 current_orders = load_inventory()
 print("Current Orders:\n")
