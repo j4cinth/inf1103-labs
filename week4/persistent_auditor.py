@@ -50,21 +50,7 @@ def get_valid_input(orders_list):
         
     return {"id": next_id, "name": product_name, "quantity": quantity}       
 
-def process_delivery(current_total, new_value):
-    new_total = current_total + new_value
-    return new_total
 
-def calculate_tax(amount):
-    tax_amount = amount * 0.10
-    return tax_amount
-
-def generate_report(total_units, failed_attempts):
-    print("\n----- Audit Report -----")
-    print(f"Total Deliveries Processed: {total_units}")
-    print(f"Number of Failed/Rejected Entries: {failed_attempts}")
-
-
-# 1. Initialize variables
 total_inventory, transaction_history = load_inventory()
 failed_entries = 0
 
@@ -73,29 +59,10 @@ print("Current Orders:\n")
 for order in current_orders:
     print(f"{order['id']}, {order['name']}, {order['quantity']}")
 
-# 2. Continuous loop until user types 'quit'
-while True:
-    result = get_valid_input()
+new_order = get_valid_input(current_orders)
+current_orders.append(new_order)
 
-    if  result == 'quit':
-        save_inventory(total_inventory, transaction_history)
-        break
-    elif result == 'invalid':
-        failed_entries += 1
-        continue
-
-    stock_value = result
-
-    transaction_history.append(stock_value)
-
-    # Calculate the tax for this specific delivery
-    delivery_tax = calculate_tax(stock_value)
-    print(f"Tax for this delivery: ${delivery_tax:.2f}")
-
-    # 6. Manage State: Add to running total
-    total_inventory = process_delivery(total_inventory,stock_value)
-    print(f"Added {stock_value} units. Current inventory: {total_inventory}")
-
-
-generate_report(total_inventory, failed_entries)
+print("\nNew Order Added:")
+print(f"{new_order['id']},{new_order['name']},{new_order['quantity']}")
     
+save_inventory(current_orders)
