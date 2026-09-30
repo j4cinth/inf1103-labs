@@ -1,4 +1,26 @@
-# Week 2, Lab 2
+# Week 4, Lab 4
+import os
+
+def load_inventory(filename="week4\\inventory.txt"):
+
+    if not os.path.exists(filename):
+        return 0, []
+    
+    try:
+        with open(filename, "r") as f:
+            lines = f.read().splitlines()
+            if not lines:
+                return 0, []
+            
+            total = int(lines[0].strip())
+            
+            history = []
+            if len(lines) > 1 and lines[1].strip():
+                history = [int(x) for x in lines[1].strip().split(",") if x.strip()]
+                
+            return total, history
+    except (ValueError, IndexError):
+        return 0, []
 
 def get_valid_input():
 
@@ -36,8 +58,11 @@ def generate_report(total_units, failed_attempts):
 
 
 # 1. Initialize variables
-total_inventory = 0
+total_inventory, transaction_history = load_inventory()
 failed_entries = 0
+
+print(f"Starting Inventory Total: {total_inventory}")
+print(f"Starting History: {transaction_history}\n")
 
 # 2. Continuous loop until user types 'quit'
 while True:
