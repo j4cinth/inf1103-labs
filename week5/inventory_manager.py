@@ -94,6 +94,40 @@ def add_product(inventory):
     inventory.append(new_prod)
     print("Product added successfully!")
 
+def update_stock(inventory):
+    print("\nUpdate Stock")
+    prod_id = get_non_empty_input("Enter Product ID: ")
+    
+    for product in inventory:
+        if product['id'].lower() == prod_id.lower():
+            print("Product Found:")
+            print(f"Name: {product['name']}")
+            print(f"Current Stock: {product['stock']}")
+            
+            new_stock = get_positive_number("New Stock Quantity: ", is_int=True)
+            product['stock'] = new_stock
+            print("Stock updated successfully!")
+            return
+            
+    print("Product not found.")
+
+def search_product(inventory):
+    print("\nSearch Product")
+    prod_id = get_non_empty_input("Enter Product ID: ")
+    
+    for product in inventory:
+        if product['id'].lower() == prod_id.lower():
+            print("Product Found")
+            print("-" * 48)
+            print(f"ID: {product['id']}")
+            print(f"Name: {product['name']}")
+            print(f"Price: ${product['price']:.2f}")
+            print(f"Stock: {product['stock']}")
+            print("-" * 48)
+            return
+            
+    print("Product not found.")
+
 def main():
     print("=" * 40)
     print("INVENTORY MANAGEMENT SYSTEM")
@@ -117,12 +151,12 @@ def main():
             display_all(inventory)
         elif choice == '2':
             add_product(inventory)
-        #elif choice == '3':
-            #update_stock(inventory)
-        #elif choice == '4':
-            #search_product(inventory)
-        #elif choice == '5':
-        #    save_inventory(inventory)
+        elif choice == '3':
+            update_stock(inventory)
+        elif choice == '4':
+            search_product(inventory)
+        elif choice == '5':
+            save_inventory(inventory)
         elif choice == '6':
             print("Saving inventory before exit...")
             #save_inventory(inventory, silent=True)
