@@ -1,7 +1,9 @@
 # Week 4, Lab 4
 import os
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DEFAULT_PATH = os.path.join(BASE_DIR, "inventory.txt")
 
-def load_inventory(filename="week4\\inventory.txt"):
+def load_inventory(filename="inventory.txt"):
     orders = []
     
     if not os.path.exists(filename):
@@ -22,12 +24,13 @@ def load_inventory(filename="week4\\inventory.txt"):
                     
     return orders
 
-def save_inventory(orders_list, filename="week4\\inventory.txt"):
+def save_inventory(orders_list, filename="inventory.txt"):
 
     with open(filename, "w") as f:
         for order in orders_list:
             f.write(f"{order['id']}, {order['name']}, {order['quantity']}\n")
-    print(f"\nOrder successfully saved to {filename.split('\\')[-1]}")
+    clean_filename = filename.replace("\\", "/").split("/")[-1]
+    print(f"\nOrder successfully saved to {clean_filename}")
 
 def get_valid_input(orders_list):
 
