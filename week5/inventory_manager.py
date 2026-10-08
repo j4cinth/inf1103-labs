@@ -43,9 +43,11 @@ def load_inventory():
         except json.JSONDecodeError:
             print("Error reading inventory.json. Starting with an empty inventory.")
             return []
+    else:
+        print("inventory.json not found. Starting with an empty inventory.")
+        return []
     
-    print("inventory.json not found. Starting with an empty inventory.")
-    return []
+
 
 def save_inventory(inventory, silent=False):
     if not silent:
