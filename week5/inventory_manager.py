@@ -32,6 +32,7 @@ def get_positive_number(prompt_text, is_int=False):
             print(f"Error: Please enter a valid {'integer' if is_int else 'number'}.")
 
 def load_inventory():
+    """Loads inventory from inventory.json if it exists, otherwise begins with an empty inventory."""
     if os.path.exists(FILENAME):
         try:
             with open(FILENAME, "r") as f:
@@ -40,14 +41,11 @@ def load_inventory():
             print("Inventory loaded successfully.")
             return inventory
         except json.JSONDecodeError:
-            print("Error reading inventory.json. Starting with default inventory.")
+            print("Error reading inventory.json. Starting with an empty inventory.")
+            return []
     
-    print("inventory.json not found. Creating initial inventory.")
-    return [
-        {"id": "P001", "name": "Laptop", "price": 1200.00, "stock": 15},
-        {"id": "P002", "name": "Mouse", "price": 25.50, "stock": 40},
-        {"id": "P003", "name": "Keyboard", "price": 45.00, "stock": 25}
-    ]
+    print("inventory.json not found. Starting with an empty inventory.")
+    return []
 
 def save_inventory(inventory, silent=False):
     if not silent:
@@ -159,7 +157,7 @@ def main():
             save_inventory(inventory)
         elif choice == '6':
             print("Saving inventory before exit...")
-            #save_inventory(inventory, silent=True)
+            save_inventory(inventory, silent=True)
             print("Thank you for using Inventory Management System.")
             print("Program terminated.")
             break
