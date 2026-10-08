@@ -49,6 +49,18 @@ def load_inventory():
         {"id": "P003", "name": "Keyboard", "price": 45.00, "stock": 25}
     ]
 
+def save_inventory(inventory, silent=False):
+    if not silent:
+        print("Saving inventory...")
+    try:
+        with open(FILENAME, "w") as f:
+            json.dump(inventory, f, indent=4)
+        if not silent:
+            print(f"Inventory saved successfully to {FILENAME}.")
+        else:
+            print("Inventory saved successfully.")
+    except IOError:
+        print("Error saving inventory data to file.")
 
 def display_all(inventory):
     print("\nCurrent Inventory")
