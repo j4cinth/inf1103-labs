@@ -28,6 +28,29 @@ class Product:
     def get_stock(self) -> int:
         return self.__stock
 
+class Inventory:
+    """Manages a collection of Product objects."""
+    def __init__(self):
+        self.__products = []
+
+    def add_product(self, product: Product) -> bool:
+        """Adds a product if the ID doesn't already exist."""
+        for p in self.__products:
+            if p.get_id().lower() == product.get_id().lower():
+                return False
+        self.__products.append(product)
+        return True
+
+    def get_all_products(self):
+        """Returns the list of products."""
+        return self.__products
+
+    def search_product(self, product_id: str) -> Product:
+        """Searches for a product by ID."""
+        for product in self.__products:
+            if product.get_id().lower() == product_id.lower():
+                return product
+        return None
 
 def get_non_empty_input(prompt_text):
     """Repeatedly prompts user until a non-empty string is provided."""
@@ -57,15 +80,13 @@ def get_positive_number(prompt_text, is_int=False):
         except ValueError:
             print(f"Error: Please enter a valid {'integer' if is_int else 'number'}.")
 
-def load_inventory():
+def load_inventory(inventory_obj: Inventory):
     """Loads inventory from inventory.json and converts dictionaries into Product objects."""
     if os.path.exists(FILENAME):
         try:
             with open(FILENAME, "r") as f:
                 raw_data = json.load(f)
             
-            # Convert raw dictionaries into a list of Product objects
-            inventory = []
             for item in raw_data:
                 product_obj = Product(
                     product_id=item['id'], 
@@ -73,28 +94,23 @@ def load_inventory():
                     price=item['price'], 
                     stock=item['stock']
                 )
-                inventory.append(product_obj)
+                inventory_obj.add_product(product_obj)
 
             print("inventory.json found.")
             print("Inventory loaded successfully.")
-            return inventory
         except json.JSONDecodeError:
             print("Error reading inventory.json. Starting with an empty inventory.")
-            return []
     else:
         print("inventory.json not found. Starting with an empty inventory.")
-        return []
-    
 
 
-def save_inventory(inventory, silent=False):
+def save_inventory(inventory_obj: Inventory, silent=False):
     """Converts a list of Product objects back into dictionaries and saves to inventory.json."""
     if not silent:
         print("Saving inventory...")
     try:
-        # Reconstruct the list of dictionaries using our class getter methods
         raw_data = []
-        for product in inventory:
+        for product in inventory_obj.get_all_products():
             raw_data.append({
                 "id": product.get_id(),
                 "name": product.get_name(),
@@ -111,23 +127,24 @@ def save_inventory(inventory, silent=False):
     except IOError:
         print("Error saving inventory data to file.")
 
-def display_all(inventory):
+
+def display_all(inventory_obj: Inventory):
     print("\nCurrent Inventory")
     print("-" * 48)
-    if not inventory:
+    products = inventory_obj.get_all_products()
+    if not products:
         print("No products in inventory.")
-    for product in inventory:
-        # Utilizing the built-in class method to output details
+    for product in products:
         product.display_information()
     print("-" * 48)
 
-def add_product(inventory):
+
+def add_product_ui(inventory_obj: Inventory):
     print("\nAdd New Product")
     
     while True:
         prod_id = get_non_empty_input("Product ID: ")
-        # Using .get_id() to compare strings instead of old ['id'] dictionary lookup
-        if any(product.get_id().lower() == prod_id.lower() for product in inventory):
+        if inventory_obj.search_product(prod_id) is not None:
             print("Error: Product ID already exists. Try a different ID.")
             continue
         break
@@ -136,46 +153,43 @@ def add_product(inventory):
     price = get_positive_number("Price: ", is_int=False)
     stock = get_positive_number("Stock Quantity: ", is_int=True)
 
-    # Instantiate a brand new Product object instead of creating a raw dictionary
     new_prod = Product(prod_id, name, price, stock)
-    inventory.append(new_prod)
+    inventory_obj.add_product(new_prod)
     print("Product added successfully!")
 
-def update_stock(inventory):
+
+def update_stock_ui(inventory_obj: Inventory):
     print("\nUpdate Stock")
     prod_id = get_non_empty_input("Enter Product ID: ")
     
-    for product in inventory:
-        if product.get_id().lower() == prod_id.lower():
-            print("Product Found:")
-            print(f"Name: {product.get_name()}")
-            print(f"Current Stock: {product.get_stock()}")
-            
-            new_stock = get_positive_number("New Stock Quantity: ", is_int=True)
-            # Use the dedicated class method to modify the encapsulated attribute safely
-            product.update_stock(new_stock)
-            print("Stock updated successfully!")
-            return
-            
-    print("Product not found.")
+    product = inventory_obj.search_product(prod_id)
+    if product:
+        print("Product Found:")
+        print(f"Name: {product.get_name()}")
+        print(f"Current Stock: {product.get_stock()}")
+        
+        new_stock = get_positive_number("New Stock Quantity: ", is_int=True)
+        product.update_stock(new_stock)
+        print("Stock updated successfully!")
+    else:
+        print("Product not found.")
 
-def search_product(inventory):
+
+def search_product_ui(inventory_obj: Inventory):
     print("\nSearch Product")
     prod_id = get_non_empty_input("Enter Product ID: ")
     
-    for product in inventory:
-        if product.get_id().lower() == prod_id.lower():
-            print("Product Found")
-            print("-" * 48)
-            # Replaced dictionary syntax with clean getter method calls
-            print(f"ID: {product.get_id()}")
-            print(f"Name: {product.get_name()}")
-            print(f"Price: ${product.get_price():.2f}")
-            print(f"Stock: {product.get_stock()}")
-            print("-" * 48)
-            return
-            
-    print("Product not found.")
+    product = inventory_obj.search_product(prod_id)
+    if product:
+        print("Product Found")
+        print("-" * 48)
+        print(f"ID: {product.get_id()}")
+        print(f"Name: {product.get_name()}")
+        print(f"Price: ${product.get_price():.2f}")
+        print(f"Stock: {product.get_stock()}")
+        print("-" * 48)
+    else:
+        print("Product not found.")
 
 
 def main():
