@@ -103,7 +103,6 @@ def load_inventory(inventory_obj: Inventory):
     else:
         print("inventory.json not found. Starting with an empty inventory.")
 
-
 def save_inventory(inventory_obj: Inventory, silent=False):
     """Converts a list of Product objects back into dictionaries and saves to inventory.json."""
     if not silent:
@@ -127,7 +126,6 @@ def save_inventory(inventory_obj: Inventory, silent=False):
     except IOError:
         print("Error saving inventory data to file.")
 
-
 def display_all(inventory_obj: Inventory):
     print("\nCurrent Inventory")
     print("-" * 48)
@@ -137,7 +135,6 @@ def display_all(inventory_obj: Inventory):
     for product in products:
         product.display_information()
     print("-" * 48)
-
 
 def add_product_ui(inventory_obj: Inventory):
     print("\nAdd New Product")
@@ -157,7 +154,6 @@ def add_product_ui(inventory_obj: Inventory):
     inventory_obj.add_product(new_prod)
     print("Product added successfully!")
 
-
 def update_stock_ui(inventory_obj: Inventory):
     print("\nUpdate Stock")
     prod_id = get_non_empty_input("Enter Product ID: ")
@@ -173,7 +169,6 @@ def update_stock_ui(inventory_obj: Inventory):
         print("Stock updated successfully!")
     else:
         print("Product not found.")
-
 
 def search_product_ui(inventory_obj: Inventory):
     print("\nSearch Product")
@@ -191,13 +186,14 @@ def search_product_ui(inventory_obj: Inventory):
     else:
         print("Product not found.")
 
-
 def main():
     print("=" * 40)
     print("INVENTORY MANAGEMENT SYSTEM")
     print("=" * 40)
     
-    inventory = load_inventory()
+    # Corrected: Create the object and pass it to the loader function
+    inventory = Inventory()
+    load_inventory(inventory)
     
     while True:
         print("\n----------- MENU -----------")
@@ -211,14 +207,15 @@ def main():
         
         choice = input("Enter option: ").strip()
         
+        # Corrected: Pointed all choices to their respective UI functions
         if choice == '1':
             display_all(inventory)
         elif choice == '2':
-            add_product(inventory)
+            add_product_ui(inventory)
         elif choice == '3':
-            update_stock(inventory)
+            update_stock_ui(inventory)
         elif choice == '4':
-            search_product(inventory)
+            search_product_ui(inventory)
         elif choice == '5':
             save_inventory(inventory)
         elif choice == '6':
