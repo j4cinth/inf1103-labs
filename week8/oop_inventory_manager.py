@@ -58,11 +58,23 @@ def get_positive_number(prompt_text, is_int=False):
             print(f"Error: Please enter a valid {'integer' if is_int else 'number'}.")
 
 def load_inventory():
-    """Loads inventory from inventory.json if it exists, otherwise begins with an empty inventory."""
+    """Loads inventory from inventory.json and converts dictionaries into Product objects."""
     if os.path.exists(FILENAME):
         try:
             with open(FILENAME, "r") as f:
-                inventory = json.load(f)
+                raw_data = json.load(f)
+            
+            # Convert raw dictionaries into a list of Product objects
+            inventory = []
+            for item in raw_data:
+                product_obj = Product(
+                    product_id=item['id'], 
+                    name=item['name'], 
+                    price=item['price'], 
+                    stock=item['stock']
+                )
+                inventory.append(product_obj)
+
             print("inventory.json found.")
             print("Inventory loaded successfully.")
             return inventory
@@ -76,11 +88,22 @@ def load_inventory():
 
 
 def save_inventory(inventory, silent=False):
+    """Converts a list of Product objects back into dictionaries and saves to inventory.json."""
     if not silent:
         print("Saving inventory...")
     try:
+        # Reconstruct the list of dictionaries using our class getter methods
+        raw_data = []
+        for product in inventory:
+            raw_data.append({
+                "id": product.get_id(),
+                "name": product.get_name(),
+                "price": product.get_price(),
+                "stock": product.get_stock()
+            })
+
         with open(FILENAME, "w") as f:
-            json.dump(inventory, f, indent=4)
+            json.dump(raw_data, f, indent=4)
         if not silent:
             print(f"Inventory saved successfully to {FILENAME}.")
         else:
