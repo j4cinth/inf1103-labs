@@ -117,7 +117,8 @@ def display_all(inventory):
     if not inventory:
         print("No products in inventory.")
     for product in inventory:
-        print(f"ID: {product['id']} | Name: {product['name']} | Price: ${product['price']:.2f} | Stock: {product['stock']}")
+        # Utilizing the built-in class method to output details
+        product.display_information()
     print("-" * 48)
 
 def add_product(inventory):
@@ -125,7 +126,8 @@ def add_product(inventory):
     
     while True:
         prod_id = get_non_empty_input("Product ID: ")
-        if any(product['id'].lower() == prod_id.lower() for product in inventory):
+        # Using .get_id() to compare strings instead of old ['id'] dictionary lookup
+        if any(product.get_id().lower() == prod_id.lower() for product in inventory):
             print("Error: Product ID already exists. Try a different ID.")
             continue
         break
@@ -134,12 +136,8 @@ def add_product(inventory):
     price = get_positive_number("Price: ", is_int=False)
     stock = get_positive_number("Stock Quantity: ", is_int=True)
 
-    new_prod = {
-        "id": prod_id,
-        "name": name,
-        "price": price,
-        "stock": stock
-    }
+    # Instantiate a brand new Product object instead of creating a raw dictionary
+    new_prod = Product(prod_id, name, price, stock)
     inventory.append(new_prod)
     print("Product added successfully!")
 
@@ -148,13 +146,14 @@ def update_stock(inventory):
     prod_id = get_non_empty_input("Enter Product ID: ")
     
     for product in inventory:
-        if product['id'].lower() == prod_id.lower():
+        if product.get_id().lower() == prod_id.lower():
             print("Product Found:")
-            print(f"Name: {product['name']}")
-            print(f"Current Stock: {product['stock']}")
+            print(f"Name: {product.get_name()}")
+            print(f"Current Stock: {product.get_stock()}")
             
             new_stock = get_positive_number("New Stock Quantity: ", is_int=True)
-            product['stock'] = new_stock
+            # Use the dedicated class method to modify the encapsulated attribute safely
+            product.update_stock(new_stock)
             print("Stock updated successfully!")
             return
             
@@ -165,17 +164,19 @@ def search_product(inventory):
     prod_id = get_non_empty_input("Enter Product ID: ")
     
     for product in inventory:
-        if product['id'].lower() == prod_id.lower():
+        if product.get_id().lower() == prod_id.lower():
             print("Product Found")
             print("-" * 48)
-            print(f"ID: {product['id']}")
-            print(f"Name: {product['name']}")
-            print(f"Price: ${product['price']:.2f}")
-            print(f"Stock: {product['stock']}")
+            # Replaced dictionary syntax with clean getter method calls
+            print(f"ID: {product.get_id()}")
+            print(f"Name: {product.get_name()}")
+            print(f"Price: ${product.get_price():.2f}")
+            print(f"Stock: {product.get_stock()}")
             print("-" * 48)
             return
             
     print("Product not found.")
+
 
 def main():
     print("=" * 40)
