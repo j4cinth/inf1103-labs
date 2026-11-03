@@ -11,7 +11,7 @@ class Product:
         self.__stock = stock
 
     def update_stock(self, quantity: int):
-        self.__stock = quantity
+        self.__stock += quantity
 
     def display_information(self):
         print(f"ID: {self.__product_id} | Name: {self.__name} | Price: ${self.__price:.2f} | Stock: {self.__stock}")
