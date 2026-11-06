@@ -1,9 +1,10 @@
 import os
 import json
+from abc import ABC, abstractmethod
 
 FILENAME = "inventory.json"
 
-from abc import ABC, abstractmethod
+
 
 class CanBeShipped(ABC):
     """Interface-style abstract base class specifying shipping capability."""
@@ -47,12 +48,13 @@ class PhysicalProduct(Product, CanBeShipped):
         super().__init__(product_id, name, price, stock)
         self.__weight  = weight  # Weight in kg
     
-    def get_weight(self): return self.__weight
+    def get_weight(self): 
+        return self.__weight
 
     # Method Overriding: Reuse parent view and add unique attribute
     def display_information(self):
         super().display_information()
-        print(f"Type: Physical | Weight: {self.__weight } kg")
+        print(f"Type: Physical | Weight: {self.__weight} kg")
 
     # Concrete implementation of abstract method
     def get_fulfilment_info(self) -> str:
@@ -77,7 +79,7 @@ class DigitalProduct(Product):
     # Method Overriding: Reuse parent view and add unique attribute
     def display_information(self):
         super().display_information()
-        print(f"Type: Digital | Download Size: {self.__download_size } MB")
+        print(f"Type: Digital | Download Size: {self.__download_size} MB")
 
     # Concrete implementation of abstract method
     def get_fulfilment_info(self) -> str:
