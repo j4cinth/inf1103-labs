@@ -33,6 +33,40 @@ class Product(ABC):
         """Returns a message explaining how the product is delivered."""
         pass
 
+class PhysicalProduct(Product, CanBeShipped):
+    def __init__(self, product_id: str, name: str, price: float, stock: int, weight: float):
+        # Reuse parent constructor
+        super().__init__(product_id, name, price, stock)
+        self.weight = weight  # Weight in kg
+
+    # Method Overriding: Reuse parent view and add unique attribute
+    def display_information(self):
+        super().display_information()
+        print(f"Type: Physical | Weight: {self.weight} kg")
+
+    # Concrete implementation of abstract method
+    def get_fulfilment_info(self) -> str:
+        return "Requires physical shipping handling."
+
+    # Concrete implementation of interface contract
+    def calculate_shipping_cost(self) -> float:
+        return 5.00 + (self.weight * 2.50)
+
+class DigitalProduct(Product):
+    def __init__(self, product_id: str, name: str, price: float, stock: int, download_size: float):
+        # Reuse parent constructor
+        super().__init__(product_id, name, price, stock)
+        self.download_size = download_size  # Size in MB
+
+    # Method Overriding: Reuse parent view and add unique attribute
+    def display_information(self):
+        super().display_information()
+        print(f"Type: Digital | Download Size: {self.download_size} MB")
+
+    # Concrete implementation of abstract method
+    def get_fulfilment_info(self) -> str:
+        return "Delivered instantly via virtual download link."
+
 class Inventory:
     """Manages a collection of Product objects."""
     def __init__(self):
