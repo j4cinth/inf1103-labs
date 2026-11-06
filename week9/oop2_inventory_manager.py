@@ -209,6 +209,13 @@ def display_all(inventory_obj: Inventory):
 def add_product_ui(inventory_obj: Inventory):
     print("\nAdd New Product")
     
+    # Prompt user to choose product type
+    while True:
+        product_type = get_non_empty_input("Enter product type (physical/digital): ").strip().lower()
+        if product_type in ["physical", "digital"]:
+            break
+        print("Error: Invalid type. Please enter 'physical' or 'digital'.")
+
     while True:
         prod_id = get_non_empty_input("Product ID: ")
         if inventory_obj.search_product(prod_id) is not None:
@@ -220,9 +227,16 @@ def add_product_ui(inventory_obj: Inventory):
     price = get_positive_number("Price: ", is_int=False)
     stock = get_positive_number("Stock Quantity: ", is_int=True)
 
-    new_prod = Product(prod_id, name, price, stock)
+    # Gather specialized type attributes based on selection
+    if product_type == "physical":
+        weight = get_positive_number("Weight (kg): ", is_int=False)
+        new_prod = PhysicalProduct(prod_id, name, price, stock, weight)
+    else:
+        download_size = get_positive_number("Download Size (MB): ", is_int=False)
+        new_prod = DigitalProduct(prod_id, name, price, stock, download_size)
+
     inventory_obj.add_product(new_prod)
-    print("Product added successfully!")
+    print(f"{product_type.capitalize()} product added successfully!")
 
 def update_stock_ui(inventory_obj: Inventory):
     print("\nUpdate Stock")
@@ -231,8 +245,8 @@ def update_stock_ui(inventory_obj: Inventory):
     product = inventory_obj.search_product(prod_id)
     if product:
         print("Product Found:")
-        print(f"Name: {product.get_name()}")
-        print(f"Current Stock: {product.get_stock()}")
+        print(f"Name: {product.name}")
+        print(f"Current Stock: {product.stock}")
         
         new_stock = get_positive_number("New Stock Quantity: ", is_int=True)
         product.update_stock(new_stock)
@@ -248,10 +262,12 @@ def search_product_ui(inventory_obj: Inventory):
     if product:
         print("Product Found")
         print("-" * 48)
-        print(f"ID: {product.get_id()}")
-        print(f"Name: {product.get_name()}")
-        print(f"Price: ${product.get_price():.2f}")
-        print(f"Stock: {product.get_stock()}")
+        product.display_information()
+        print(f"Fulfilment: {product.get_fulfilment_info()}")
+        
+        # Check if the product implements the interface
+        if isinstance(product, CanBeShipped):
+            print(f"Shipping Cost: ${product.calculate_shipping_cost():.2f}")
         print("-" * 48)
     else:
         print("Product not found.")
