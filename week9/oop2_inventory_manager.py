@@ -52,6 +52,16 @@ class PhysicalProduct(Product, CanBeShipped):
     def calculate_shipping_cost(self) -> float:
         return 5.00 + (self.weight * 2.50)
 
+    def to_dict(self) -> dict:
+        return {
+            "type": "physical",
+            "id": self.product_id,
+            "name": self.name,
+            "price": self.price,
+            "stock": self.stock,
+            "weight": self.weight
+        }
+
 class DigitalProduct(Product):
     def __init__(self, product_id: str, name: str, price: float, stock: int, download_size: float):
         # Reuse parent constructor
@@ -66,6 +76,16 @@ class DigitalProduct(Product):
     # Concrete implementation of abstract method
     def get_fulfilment_info(self) -> str:
         return "Delivered instantly via virtual download link."
+    
+    def to_dict(self) -> dict:
+        return {
+            "type": "digital",
+            "id": self.product_id,
+            "name": self.name,
+            "price": self.price,
+            "stock": self.stock,
+            "download_size": self.download_size
+        }
 
 class Inventory:
     """Manages a collection of Product objects."""
@@ -75,7 +95,7 @@ class Inventory:
     def add_product(self, product: Product) -> bool:
         """Adds a product if the ID doesn't already exist."""
         for p in self.__products:
-            if p.get_id().lower() == product.get_id().lower():
+            if p.product_id.lower() == product.product_id.lower():
                 return False
         self.__products.append(product)
         return True
@@ -87,7 +107,7 @@ class Inventory:
     def search_product(self, product_id: str) -> Product:
         """Searches for a product by ID."""
         for product in self.__products:
-            if product.get_id().lower() == product_id.lower():
+            if product.product_id.lower() == product_id.lower():
                 return product
         return None
 
