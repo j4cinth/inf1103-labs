@@ -41,7 +41,6 @@ class Product(ABC):
         return {"id": self.__product_id, "name": self.__name,
             "price": self.__price, "stock": self.__stock}
 
-
 class PhysicalProduct(Product, CanBeShipped):
     def __init__(self, product_id: str, name: str, price: float, stock: int, weight: float):
         # Reuse parent constructor
@@ -68,7 +67,6 @@ class PhysicalProduct(Product, CanBeShipped):
         data["type"] = "physical"
         data["weight"] = self.__weight
         return data
-
 
 class DigitalProduct(Product):
     def __init__(self, product_id: str, name: str, price: float, stock: int, download_size: float):
@@ -208,7 +206,10 @@ def display_all(inventory_obj: Inventory):
         print("No products in inventory.")
     for product in products:
         product.display_information()
-    print("-" * 48)
+        print(f"Fulfilment: {product.get_fulfilment_info()}")
+        if isinstance(product, CanBeShipped):
+            print(f"Shipping Cost: ${product.calculate_shipping_cost():.2f}")
+        print("-" * 48)
 
 def add_product_ui(inventory_obj: Inventory):
     print("\nAdd New Product")
