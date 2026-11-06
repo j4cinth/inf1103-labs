@@ -37,6 +37,11 @@ class Product(ABC):
         """Returns a message explaining how the product is delivered."""
         pass
 
+    def to_dict(self) -> dict:
+        return {"id": self.__product_id, "name": self.__name,
+            "price": self.__price, "stock": self.__stock}
+
+
 class PhysicalProduct(Product, CanBeShipped):
     def __init__(self, product_id: str, name: str, price: float, stock: int, weight: float):
         # Reuse parent constructor
@@ -59,14 +64,11 @@ class PhysicalProduct(Product, CanBeShipped):
         return 5.00 + (self.__weight  * 2.50)
 
     def to_dict(self) -> dict:
-        return {
-            "type": "physical",
-            "id": self.get_id(),
-            "name": self.get_name(),
-            "price": self.get_price(),
-            "stock": self.get_stock(),
-            "weight": self.__weight
-        }
+        data = super().to_dict()
+        data["type"] = "physical"
+        data["weight"] = self.__weight
+        return data
+
 
 class DigitalProduct(Product):
     def __init__(self, product_id: str, name: str, price: float, stock: int, download_size: float):
@@ -84,14 +86,10 @@ class DigitalProduct(Product):
         return "Delivered instantly via virtual download link."
     
     def to_dict(self) -> dict:
-        return {
-            "type": "digital",
-            "id": self.get_id(),
-            "name": self.get_name(),
-            "price": self.get_price(),
-            "stock": self.get_stock(),
-            "download_size": self.__download_size
-        }
+        data = super().to_dict()
+        data["type"] = "digital"
+        data["download_size"] = self.__download_size
+        return data
 
 class Inventory:
     """Manages a collection of Product objects."""
@@ -101,7 +99,7 @@ class Inventory:
     def add_product(self, product):
         """Adds a product if the ID doesn't already exist."""
         for p in self.__products:
-            if p.get_id().lower() == product.get_id().lower():   # was p.product_id
+            if p.get_id().lower() == product.get_id().lower():   
                 return False
         self.__products.append(product)
         return True
@@ -111,8 +109,9 @@ class Inventory:
         return self.__products
 
     def search_product(self, product_id):
+        """Searches for a product by ID."""
         for product in self.__products:
-            if product.get_id().lower() == product_id.lower():   # was get_id.lower() (missing brackets)
+            if product.get_id().lower() == product_id.lower():   
                 return product
         return None
 
@@ -152,7 +151,7 @@ def load_inventory(inventory_obj: Inventory):
                 raw_data = json.load(f)
             
             for item in raw_data:
-                product_type = item.get('type', 'physical') # Defaults to physical if not present
+                product_type = item.get('type') 
                 
                 if product_type == "physical":
                     product_obj = PhysicalProduct(
@@ -160,7 +159,7 @@ def load_inventory(inventory_obj: Inventory):
                         name=item['name'], 
                         price=item['price'], 
                         stock=item['stock'],
-                        weight=item.get('weight', 0.0)
+                        weight=item['weight']
                     )
                 elif product_type == "digital":
                     product_obj = DigitalProduct(
@@ -168,7 +167,7 @@ def load_inventory(inventory_obj: Inventory):
                         name=item['name'], 
                         price=item['price'], 
                         stock=item['stock'],
-                        download_size=item.get('download_size', 0.0)
+                        download_size=item['download_size']
                     )
                 else:
                     continue # Skip unrecognized types
@@ -177,7 +176,7 @@ def load_inventory(inventory_obj: Inventory):
 
             print("inventory.json found.")
             print("Inventory loaded successfully.")
-        except json.JSONDecodeError:
+        except (json.JSONDecodeError, KeyError):
             print("Error reading inventory.json. Starting with an empty inventory.")
     else:
         print("inventory.json not found. Starting with an empty inventory.")
