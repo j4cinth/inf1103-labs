@@ -13,19 +13,23 @@ class CanBeShipped(ABC):
         """Computes the shipping fees based on implementation rules."""
         pass
 
-
 class Product(ABC):
-    def __init__(self, product_id: str, name: str, price: float, stock: int):
-        self.product_id = product_id
-        self.name = name
-        self.price = price
-        self.stock = stock
+    def __init__(self, product_id, name, price, stock):
+        self.__product_id = product_id
+        self.__name = name
+        self.__price = price
+        self.__stock = stock
+
+    def get_id(self): return self.__product_id
+    def get_name(self): return self.__name
+    def get_price(self): return self.__price
+    def get_stock(self): return self.__stock
 
     def update_stock(self, quantity: int):
-        self.stock = quantity
+        self.__stock  = quantity
 
     def display_information(self):
-        print(f"ID: {self.product_id} | Name: {self.name} | Price: ${self.price:.2f} | Stock: {self.stock}")
+        print(f"ID: {self.__product_id} | Name: {self.__name} | Price: ${self.__price:.2f} | Stock: {self.__stock}")
 
     # Abstract method required by all subclasses
     @abstractmethod
@@ -37,12 +41,14 @@ class PhysicalProduct(Product, CanBeShipped):
     def __init__(self, product_id: str, name: str, price: float, stock: int, weight: float):
         # Reuse parent constructor
         super().__init__(product_id, name, price, stock)
-        self.weight = weight  # Weight in kg
+        self.__weight  = weight  # Weight in kg
+    
+    def get_weight(self): return self.__weight
 
     # Method Overriding: Reuse parent view and add unique attribute
     def display_information(self):
         super().display_information()
-        print(f"Type: Physical | Weight: {self.weight} kg")
+        print(f"Type: Physical | Weight: {self.__weight } kg")
 
     # Concrete implementation of abstract method
     def get_fulfilment_info(self) -> str:
@@ -50,28 +56,28 @@ class PhysicalProduct(Product, CanBeShipped):
 
     # Concrete implementation of interface contract
     def calculate_shipping_cost(self) -> float:
-        return 5.00 + (self.weight * 2.50)
+        return 5.00 + (self.__weight  * 2.50)
 
     def to_dict(self) -> dict:
         return {
             "type": "physical",
-            "id": self.product_id,
-            "name": self.name,
-            "price": self.price,
-            "stock": self.stock,
-            "weight": self.weight
+            "id": self.get_id(),
+            "name": self.get_name(),
+            "price": self.get_price(),
+            "stock": self.get_stock(),
+            "weight": self.__weight
         }
 
 class DigitalProduct(Product):
     def __init__(self, product_id: str, name: str, price: float, stock: int, download_size: float):
         # Reuse parent constructor
         super().__init__(product_id, name, price, stock)
-        self.download_size = download_size  # Size in MB
+        self.__download_size  = download_size  # Size in MB
 
     # Method Overriding: Reuse parent view and add unique attribute
     def display_information(self):
         super().display_information()
-        print(f"Type: Digital | Download Size: {self.download_size} MB")
+        print(f"Type: Digital | Download Size: {self.__download_size } MB")
 
     # Concrete implementation of abstract method
     def get_fulfilment_info(self) -> str:
@@ -80,11 +86,11 @@ class DigitalProduct(Product):
     def to_dict(self) -> dict:
         return {
             "type": "digital",
-            "id": self.product_id,
-            "name": self.name,
-            "price": self.price,
-            "stock": self.stock,
-            "download_size": self.download_size
+            "id": self.get_id(),
+            "name": self.get_name(),
+            "price": self.get_price(),
+            "stock": self.get_stock(),
+            "download_size": self.__download_size
         }
 
 class Inventory:
@@ -92,10 +98,10 @@ class Inventory:
     def __init__(self):
         self.__products = []
 
-    def add_product(self, product: Product) -> bool:
+    def add_product(self, product):
         """Adds a product if the ID doesn't already exist."""
         for p in self.__products:
-            if p.product_id.lower() == product.product_id.lower():
+            if p.get_id().lower() == product.get_id().lower():   # was p.product_id
                 return False
         self.__products.append(product)
         return True
@@ -104,10 +110,9 @@ class Inventory:
         """Returns the list of products."""
         return self.__products
 
-    def search_product(self, product_id: str) -> Product:
-        """Searches for a product by ID."""
+    def search_product(self, product_id):
         for product in self.__products:
-            if product.product_id.lower() == product_id.lower():
+            if product.get_id().lower() == product_id.lower():   # was get_id.lower() (missing brackets)
                 return product
         return None
 
@@ -245,8 +250,8 @@ def update_stock_ui(inventory_obj: Inventory):
     product = inventory_obj.search_product(prod_id)
     if product:
         print("Product Found:")
-        print(f"Name: {product.name}")
-        print(f"Current Stock: {product.stock}")
+        print(f"Name: {product.get_name()}")
+        print(f"Current Stock: {product.get_stock()}")
         
         new_stock = get_positive_number("New Stock Quantity: ", is_int=True)
         product.update_stock(new_stock)
