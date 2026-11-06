@@ -140,19 +140,34 @@ def get_positive_number(prompt_text, is_int=False):
             print(f"Error: Please enter a valid {'integer' if is_int else 'number'}.")
 
 def load_inventory(inventory_obj: Inventory):
-    """Loads inventory from inventory.json and converts dictionaries into Product objects."""
+    """Loads inventory from inventory.json and converts dictionaries into correct Product subclasses."""
     if os.path.exists(FILENAME):
         try:
             with open(FILENAME, "r") as f:
                 raw_data = json.load(f)
             
             for item in raw_data:
-                product_obj = Product(
-                    product_id=item['id'], 
-                    name=item['name'], 
-                    price=item['price'], 
-                    stock=item['stock']
-                )
+                product_type = item.get('type', 'physical') # Defaults to physical if not present
+                
+                if product_type == "physical":
+                    product_obj = PhysicalProduct(
+                        product_id=item['id'], 
+                        name=item['name'], 
+                        price=item['price'], 
+                        stock=item['stock'],
+                        weight=item.get('weight', 0.0)
+                    )
+                elif product_type == "digital":
+                    product_obj = DigitalProduct(
+                        product_id=item['id'], 
+                        name=item['name'], 
+                        price=item['price'], 
+                        stock=item['stock'],
+                        download_size=item.get('download_size', 0.0)
+                    )
+                else:
+                    continue # Skip unrecognized types
+                
                 inventory_obj.add_product(product_obj)
 
             print("inventory.json found.")
@@ -163,18 +178,14 @@ def load_inventory(inventory_obj: Inventory):
         print("inventory.json not found. Starting with an empty inventory.")
 
 def save_inventory(inventory_obj: Inventory, silent=False):
-    """Converts a list of Product objects back into dictionaries and saves to inventory.json."""
+    """Converts Product subclass objects using their to_dict methods and saves to inventory.json."""
     if not silent:
         print("Saving inventory...")
     try:
         raw_data = []
         for product in inventory_obj.get_all_products():
-            raw_data.append({
-                "id": product.get_id(),
-                "name": product.get_name(),
-                "price": product.get_price(),
-                "stock": product.get_stock()
-            })
+            # Dynamically fetch the correct structural dictionary from the child class
+            raw_data.append(product.to_dict())
 
         with open(FILENAME, "w") as f:
             json.dump(raw_data, f, indent=4)
