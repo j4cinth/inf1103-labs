@@ -17,7 +17,6 @@ print("\n--- Digital Product ---")
 software.display_information()
 
 
-
 #Test for 3.2
 print("\n=== SECTION 3.2: TESTING AGGREGATION ===")
 
@@ -35,3 +34,4 @@ print("\nProduct still works independently:")
 keyboard.display_information()
 inv_b.add_product(keyboard)
 print(f"In Inventory B now? {inv_b.find_product('P002') is not None}")
+
