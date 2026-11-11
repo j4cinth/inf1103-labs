@@ -112,28 +112,40 @@ class DigitalProduct(Product):
         return data
 
 class Inventory:
-    """Manages a collection of Product objects."""
+    """Manages a collection of Product objects"""
     def __init__(self):
-        self.__products = []
+        self.__products: list[Product] = []
 
-    def add_product(self, product):
-        """Adds a product if the ID doesn't already exist."""
+    def add_product(self, product: Product) -> bool:
+        """Adds an existing Product object if the ID doesn't already exist."""
         for p in self.__products:
             if p.get_id().lower() == product.get_id().lower():   
                 return False
         self.__products.append(product)
         return True
 
-    def get_all_products(self):
-        """Returns the list of products."""
-        return self.__products
+    def remove_product(self, product_id: str) -> bool:
+        """Removes the matching Product reference without destroying the Product."""
+        product = self.find_product(product_id)
+        if product is not None:
+            self.__products.remove(product)
+            return True
+        return False
 
-    def search_product(self, product_id):
-        """Searches for a product by ID."""
+    def find_product(self, product_id: str) -> Product | None:
+        """Returns the matching Product, or None if not found."""
         for product in self.__products:
             if product.get_id().lower() == product_id.lower():   
                 return product
         return None
+
+    def search_product(self, product_id: str) -> Product | None:
+        """Alias for find_product so existing UI functions continue working."""
+        return self.find_product(product_id)
+
+    def get_all_products(self) -> list[Product]:
+        """Returns the list of products."""
+        return self.__products
 
 def get_non_empty_input(prompt_text):
     """Repeatedly prompts user until a non-empty string is provided."""
