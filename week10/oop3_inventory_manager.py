@@ -2,9 +2,23 @@ import os
 import json
 from abc import ABC, abstractmethod
 
-FILENAME = "inventory.json"
+FILENAME = os.path.join(os.path.dirname(os.path.abspath(__file__)), "inventory.json")
 
+class Supplier:
+    def __init__(self, supplier_id: str, name: str, contact_email: str):
+        self.__supplier_id: str = supplier_id
+        self.__name: str = name
+        self.__contact_email: str = contact_email
 
+    def display_information(self) -> None:
+        print(f"Supplier: {self.__name} (ID: {self.__supplier_id}) | Contact: {self.__contact_email}")
+
+    def to_dict(self) -> dict:
+        return {
+            "supplier_id": self.__supplier_id,
+            "name": self.__name,
+            "contact_email": self.__contact_email
+        }
 
 class CanBeShipped(ABC):
     """Interface-style abstract base class specifying shipping capability."""
@@ -15,11 +29,12 @@ class CanBeShipped(ABC):
         pass
 
 class Product(ABC):
-    def __init__(self, product_id, name, price, stock):
+    def __init__(self, supplier: Supplier, product_id, name, price, stock):
         self.__product_id = product_id
         self.__name = name
         self.__price = price
         self.__stock = stock
+        self.__supplier: Supplier = supplier
 
     def get_id(self): return self.__product_id
     def get_name(self): return self.__name
@@ -30,6 +45,7 @@ class Product(ABC):
         self.__stock  = quantity
 
     def display_information(self):
+        self.__supplier.display_information()
         print(f"ID: {self.__product_id} | Name: {self.__name} | Price: ${self.__price:.2f} | Stock: {self.__stock}")
 
     # Abstract method required by all subclasses
@@ -39,13 +55,17 @@ class Product(ABC):
         pass
 
     def to_dict(self) -> dict:
-        return {"id": self.__product_id, "name": self.__name,
-            "price": self.__price, "stock": self.__stock}
+        return {"id": self.__product_id,
+                "name": self.__name,
+                "price": self.__price,
+                "stock": self.__stock,
+                "supplier": self.__supplier.to_dict()
+                }
 
 class PhysicalProduct(Product, CanBeShipped):
-    def __init__(self, product_id: str, name: str, price: float, stock: int, weight: float):
+    def __init__(self, supplier: Supplier, product_id: str, name: str, price: float, stock: int, weight: float):
         # Reuse parent constructor
-        super().__init__(product_id, name, price, stock)
+        super().__init__(supplier, product_id, name, price, stock)
         self.__weight  = weight  # Weight in kg
     
     def get_weight(self): 
@@ -71,9 +91,9 @@ class PhysicalProduct(Product, CanBeShipped):
         return data
 
 class DigitalProduct(Product):
-    def __init__(self, product_id: str, name: str, price: float, stock: int, download_size: float):
+    def __init__(self, supplier: Supplier, product_id: str, name: str, price: float, stock: int, download_size: float):
         # Reuse parent constructor
-        super().__init__(product_id, name, price, stock)
+        super().__init__(supplier, product_id, name, price, stock)
         self.__download_size  = download_size  # Size in MB
 
     # Method Overriding: Reuse parent view and add unique attribute
@@ -151,10 +171,20 @@ def load_inventory(inventory_obj: Inventory):
                 raw_data = json.load(f)
             
             for item in raw_data:
-                product_type = item.get('type') 
+                product_type = item.get('type')
+                sup_data = item.get('supplier')
+                if sup_data:
+                    supplier_obj = Supplier(
+                        sup_data['supplier_id'],
+                        sup_data['name'],
+                        sup_data['contact_email']
+                    )
+                else:
+                    supplier_obj = Supplier("SUP-00", "Default Supplier", "info@supplier.com")
                 
                 if product_type == "physical":
                     product_obj = PhysicalProduct(
+                        supplier=supplier_obj,
                         product_id=item['id'], 
                         name=item['name'], 
                         price=item['price'], 
@@ -163,6 +193,7 @@ def load_inventory(inventory_obj: Inventory):
                     )
                 elif product_type == "digital":
                     product_obj = DigitalProduct(
+                        supplier=supplier_obj,
                         product_id=item['id'], 
                         name=item['name'], 
                         price=item['price'], 
@@ -233,14 +264,18 @@ def add_product_ui(inventory_obj: Inventory):
     name = get_non_empty_input("Product Name: ")
     price = get_positive_number("Price: ", is_int=False)
     stock = get_positive_number("Stock Quantity: ", is_int=True)
+    sup_id = get_non_empty_input("Supplier ID: ")
+    sup_name = get_non_empty_input("Supplier Name: ")
+    sup_email = get_non_empty_input("Supplier Email: ")
+    supplier = Supplier(sup_id, sup_name, sup_email)    
 
     # Gather specialized type attributes based on selection
     if product_type == "physical":
         weight = get_positive_number("Weight (kg): ", is_int=False)
-        new_prod = PhysicalProduct(prod_id, name, price, stock, weight)
+        new_prod = PhysicalProduct(supplier, prod_id, name, price, stock, weight)
     else:
         download_size = get_positive_number("Download Size (MB): ", is_int=False)
-        new_prod = DigitalProduct(prod_id, name, price, stock, download_size)
+        new_prod = DigitalProduct(supplier, prod_id, name, price, stock, download_size)
 
     inventory_obj.add_product(new_prod)
     print(f"{product_type.capitalize()} product added successfully!")
