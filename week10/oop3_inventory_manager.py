@@ -147,6 +147,56 @@ class Inventory:
         """Returns the list of products."""
         return self.__products
 
+class OrderLine:
+    def __init__(self, product: Product, quantity: int):
+        self.__product: Product = product
+        self.__quantity: int = quantity
+
+    def get_product(self) -> Product:
+        return self.__product
+
+    def get_quantity(self) -> int:
+        return self.__quantity
+
+    def calculate_subtotal(self) -> float:
+        return self.__product.get_price() * self.__quantity
+
+    def display_line(self) -> None:
+        print(f"  - {self.__product.get_name()} (x{self.__quantity}): ${self.calculate_subtotal():.2f}")
+
+class Order:
+    def __init__(self, order_id: str):
+        self.__order_id: str = order_id
+        self.__order_lines: list[OrderLine] = []
+
+    def get_order_id(self) -> str:
+        return self.__order_id
+
+    def get_order_lines(self) -> list[OrderLine]:
+        return self.__order_lines
+
+    def add_order_line(self, product: Product, quantity: int) -> None:
+        """Creates an OrderLine internally so Order owns its lifecycle."""
+        order_line = OrderLine(product, quantity)
+        self.__order_lines.append(order_line)
+
+    def remove_order_line(self, product_id: str) -> bool:
+        """Removes an OrderLine by product ID."""
+        for line in self.__order_lines:
+            if line.get_product().get_id().lower() == product_id.lower():
+                self.__order_lines.remove(line)
+                return True
+        return False
+
+    def calculate_total(self) -> float:
+        return sum(line.calculate_subtotal() for line in self.__order_lines)
+
+    def display_order(self) -> None:
+        print(f"Order ID: {self.__order_id}")
+        for line in self.__order_lines:
+            line.display_line()
+        print(f"Order Total: ${self.calculate_total():.2f}")
+
 def get_non_empty_input(prompt_text):
     """Repeatedly prompts user until a non-empty string is provided."""
     while True:
