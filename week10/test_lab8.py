@@ -1,4 +1,4 @@
-from oop3_inventory_manager import Supplier, PhysicalProduct, DigitalProduct, Inventory, Order
+from oop3_inventory_manager import Supplier, Product, PhysicalProduct, DigitalProduct, Inventory, Order
 
 
 # Test for 2.2
@@ -53,3 +53,16 @@ line1 = order1.get_order_lines()[0]
 line2 = order2.get_order_lines()[0]
 print(f"\nDifferent OrderLine objects? {line1 is not line2}")
 print(f"Same Product object? {line1.get_product() is line2.get_product()}")
+
+
+# Test for 6.3 & 7.2
+print("\n=== SECTIONS 6 & 7: TESTING LSP & POLYMORPHISM ===")
+
+def show_product_details(product: Product) -> None:
+    product.display_information()
+    print(f"Fulfilment: {product.get_fulfilment_info()}")
+    print("-" * 40)
+
+inv_b.add_product(software)
+for item in inv_b.get_all_products():
+    show_product_details(item)
