@@ -1,4 +1,4 @@
-from oop3_inventory_manager import Supplier, PhysicalProduct, DigitalProduct, Inventory
+from oop3_inventory_manager import Supplier, PhysicalProduct, DigitalProduct, Inventory, Order
 
 
 # Test for 2.2
@@ -17,7 +17,7 @@ print("\n--- Digital Product ---")
 software.display_information()
 
 
-#Test for 3.2
+# Test for 3.2
 print("\n=== SECTION 3.2: TESTING AGGREGATION ===")
 
 sup2 = Supplier("SUP-02", "Keychron", "sales@keychron.com")
@@ -35,3 +35,21 @@ keyboard.display_information()
 inv_b.add_product(keyboard)
 print(f"In Inventory B now? {inv_b.find_product('P002') is not None}")
 
+# Test for 4.3
+print("\n=== SECTION 4.3: TESTING COMPOSITION ===")
+
+order1 = Order("ORD-001")
+order1.add_order_line(mouse, 2)
+order1.add_order_line(software, 1)
+
+order2 = Order("ORD-002")
+order2.add_order_line(mouse, 5)
+
+order1.display_order()
+print()
+order2.display_order()
+
+line1 = order1.get_order_lines()[0]
+line2 = order2.get_order_lines()[0]
+print(f"\nDifferent OrderLine objects? {line1 is not line2}")
+print(f"Same Product object? {line1.get_product() is line2.get_product()}")
