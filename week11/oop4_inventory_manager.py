@@ -111,6 +111,25 @@ class DigitalProduct(Product):
         data["download_size"] = self.__download_size
         return data
 
+class ProductFactory:
+    @staticmethod
+    def create(
+        product_type: str,
+        supplier: Supplier,
+        product_id: str,
+        name: str,
+        price: float,
+        stock: int,
+        extra_value: float = 0.0
+    ) -> Product:
+        p_type = product_type.strip().lower()
+        if p_type == "physical":
+            return PhysicalProduct(supplier, product_id, name, price, stock, extra_value)
+        elif p_type == "digital":
+            return DigitalProduct(supplier, product_id, name, price, stock, extra_value)
+        else:
+            raise ValueError(f"Unknown product type: {product_type}")
+
 class Inventory:
     """Manages a collection of Product objects"""
     def __init__(self):
@@ -277,28 +296,23 @@ def load_inventory(inventory_obj: Inventory):
                 else:
                     supplier_obj = Supplier("SUP-00", "Default Supplier", "info@supplier.com")
                 
-                if product_type == "physical":
-                    product_obj = PhysicalProduct(
+                try:
+                    extra = item.get('weight', 0.0) if product_type == "physical" else item.get('download_size', 0.0)
+                    product_obj = ProductFactory.create(
+                        product_type=product_type or "",
                         supplier=supplier_obj,
-                        product_id=item['id'], 
-                        name=item['name'], 
-                        price=item['price'], 
+                        product_id=item['id'],
+                        name=item['name'],
+                        price=item['price'],
                         stock=item['stock'],
-                        weight=item['weight']
+                        extra_value=extra
                     )
-                elif product_type == "digital":
-                    product_obj = DigitalProduct(
-                        supplier=supplier_obj,
-                        product_id=item['id'], 
-                        name=item['name'], 
-                        price=item['price'], 
-                        stock=item['stock'],
-                        download_size=item['download_size']
-                    )
-                else:
-                    continue # Skip unrecognized types
-                
-                inventory_obj.add_product(product_obj)
+
+                    inventory_obj.add_product(product_obj)
+                    
+                except ValueError:
+                    continue
+
 
             print("inventory.json found.")
             print("Inventory loaded successfully.")
@@ -366,14 +380,14 @@ def add_product_ui(inventory_obj: Inventory):
 
     # Gather specialized type attributes based on selection
     if product_type == "physical":
-        weight = get_positive_number("Weight (kg): ", is_int=False)
-        new_prod = PhysicalProduct(supplier, prod_id, name, price, stock, weight)
+        extra = get_positive_number("Weight (kg): ", is_int=False)
     else:
-        download_size = get_positive_number("Download Size (MB): ", is_int=False)
-        new_prod = DigitalProduct(supplier, prod_id, name, price, stock, download_size)
+        extra = get_positive_number("Download Size (MB): ", is_int=False)
 
+    new_prod = ProductFactory.create(product_type, supplier, prod_id, name, price, stock, extra)
     inventory_obj.add_product(new_prod)
     print(f"{product_type.capitalize()} product added successfully!")
+
 
 def update_stock_ui(inventory_obj: Inventory):
     print("\nUpdate Stock")
