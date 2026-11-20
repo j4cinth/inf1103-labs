@@ -1,5 +1,6 @@
 import os
 import json
+import csv
 from abc import ABC, abstractmethod
 
 FILENAME = os.path.join(os.path.dirname(os.path.abspath(__file__)), "inventory.json")
@@ -285,6 +286,43 @@ def get_positive_number(prompt_text, is_int=False):
         except ValueError:
             print(f"Error: Please enter a valid {'integer' if is_int else 'number'}.")
 
+def get_positive_float(prompt: str) -> float:
+    while True:
+        try:
+            value = float(input(prompt))
+            if value <= 0:
+                print("Please enter a number greater than zero.")
+                continue
+            return value
+        except ValueError:
+            print("Please enter a valid number, e.g. 12.50")
+
+def load_products(path: str, inventory: Inventory, supplier: Supplier) -> None:
+    try:
+        file = open(path, newline="")
+    except FileNotFoundError:
+        print(f"Products file not found: {path}")
+    else:
+        loaded = 0
+        with file:
+            reader = csv.reader(file)
+            next(reader, None)  # skip header row
+            for row_num, row in enumerate(reader, start=2):
+                try:
+                    product_type, product_id, name, price_str, stock_str = row
+                    price = float(price_str)
+                    stock = int(stock_str)
+                    product = ProductFactory.create(
+                        product_type, supplier, product_id, name, price, stock
+                    )
+                    inventory.add_product(product)
+                    loaded += 1
+                except ValueError as e:
+                    print(f"Skipping invalid row {row_num} ({row}): {e}")
+        print(f"{loaded} products loaded.")
+    finally:
+        print("Load attempt finished.")
+
 def load_inventory(inventory_obj: Inventory):
     """Loads inventory from inventory.json and converts dictionaries into correct Product subclasses."""
     if os.path.exists(FILENAME):
@@ -379,7 +417,7 @@ def add_product_ui(inventory_obj: Inventory):
         break
 
     name = get_non_empty_input("Product Name: ")
-    price = get_positive_number("Price: ", is_int=False)
+    price = get_positive_float("Price: ")
     stock = get_positive_number("Stock Quantity: ", is_int=True)
     sup_id = get_non_empty_input("Supplier ID: ")
     sup_name = get_non_empty_input("Supplier Name: ")
