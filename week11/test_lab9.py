@@ -1,7 +1,8 @@
+import os
 from oop4_inventory_manager import (
     Supplier, PhysicalProduct, Order,
     BulkDiscount, PercentageDiscount, StudentDiscount,
-    ProductFactory
+    ProductFactory, Inventory, get_positive_float, load_products
 )
 
 # Section 2 Test
@@ -41,3 +42,17 @@ for label, fn in [
         fn()
     except ValueError as e:
         print(f"Validation passed ({label}): {e}")
+
+# Section 5.1 Test
+print("\n=== TESTING SECTION 5.1 ===")
+val = get_positive_float("Enter positive price (test abc, -5, 12.50): ")
+print(f"Returned value: {val}")
+
+# Section 5.2 Test
+print("\n=== TESTING SECTION 5.2 ===")
+csv_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "products.csv")
+csv_inv = Inventory()
+load_products(csv_path, csv_inv, sup)
+
+print("\n--- Testing missing CSV file ---")
+load_products("missing_products.csv", csv_inv, sup)
