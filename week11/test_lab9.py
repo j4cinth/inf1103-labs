@@ -29,3 +29,15 @@ try:
     ProductFactory.create("service", sup, "S001", "Setup", 30.0, 5)
 except ValueError as e:
     print(f"Caught expected error: {e}")
+
+# Section 4 Test
+print("\n=== TESTING SECTION 4 ===")
+for label, fn in [
+    ("Zero price", lambda: ProductFactory.create("physical", sup, "P99", "Bad", 0, 5)),
+    ("Negative stock", lambda: ProductFactory.create("digital", sup, "D99", "Bad", 10.0, -1)),
+    ("Zero order qty", lambda: order.add_order_line(item, 0)),
+]:
+    try:
+        fn()
+    except ValueError as e:
+        print(f"Validation passed ({label}): {e}")
