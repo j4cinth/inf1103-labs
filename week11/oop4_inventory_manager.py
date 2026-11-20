@@ -30,6 +30,10 @@ class CanBeShipped(ABC):
 
 class Product(ABC):
     def __init__(self, supplier: Supplier, product_id: str, name: str, price: float, stock: int):
+        if price <= 0:
+            raise ValueError("Price must be greater than zero.")
+        if stock < 0:
+            raise ValueError("Stock quantity cannot be negative.")
         self.__product_id: str = product_id
         self.__name: str = name
         self.__price: float = price
@@ -42,6 +46,8 @@ class Product(ABC):
     def get_stock(self) -> int: return self.__stock
 
     def update_stock(self, quantity: int) -> None:
+        if quantity < 0:
+            raise ValueError("Stock quantity cannot be negative.")
         self.__stock = quantity
 
     def display_information(self) -> None:
@@ -168,6 +174,8 @@ class Inventory:
 
 class OrderLine:
     def __init__(self, product: Product, quantity: int):
+        if quantity <= 0:
+            raise ValueError("Quantity must be greater than zero.")
         self.__product: Product = product
         self.__quantity: int = quantity
 
@@ -309,7 +317,7 @@ def load_inventory(inventory_obj: Inventory):
                     )
 
                     inventory_obj.add_product(product_obj)
-                    
+
                 except ValueError:
                     continue
 
